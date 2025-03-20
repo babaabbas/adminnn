@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -128,7 +129,7 @@ fun CategoryInputForm(
 @Composable
 fun Real_Home(navController: NavController){
     var isDialogVisible by remember { mutableStateOf(false) }
-    Scaffold(modifier = Modifier,floatingActionButton = {
+    Scaffold(modifier = Modifier.statusBarsPadding(),floatingActionButton = {
         Box(
             modifier = Modifier
                 .size(56.dp)  // Size of the circle
@@ -173,7 +174,7 @@ fun Real_Home(navController: NavController){
 }
 
 @Composable
-fun Home(modifier: Modifier = Modifier, navController: NavController,paddingValues: PaddingValues) {
+fun Home2(modifier: Modifier = Modifier, navController: NavController,paddingValues: PaddingValues) {
 
     Column(modifier = Modifier) {
         Row(
@@ -282,6 +283,52 @@ fun Home(modifier: Modifier = Modifier, navController: NavController,paddingValu
 
     }
 
+}
+
+@Composable
+fun Home(modifier: Modifier = Modifier, navController: NavController, paddingValues: PaddingValues) {
+    var searchQuery by remember { mutableStateOf("") }
+    val viewModel: CategoryViewModel = viewModel()
+    val allCategories by viewModel.categories.collectAsState()
+
+    // Filter categories based on searchQuery
+    val filteredCategories = allCategories.filter {
+        it.cat_name.contains(searchQuery, ignoreCase = true)
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        // Title Section
+        Text(
+            text = "Admin Acess",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+
+        // Search Bar
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Search Category") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp)
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Category Grid
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2), // 2 columns
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = paddingValues
+        ) {
+            itemsIndexed(filteredCategories) { index, item ->
+                rainbowWidget(Color.White, Color.White, item.cat_name, navController, R.drawable.nachos, item)
+            }
+        }
+    }
 }
 
 @Composable

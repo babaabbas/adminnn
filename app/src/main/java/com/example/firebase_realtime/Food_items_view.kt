@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -101,7 +102,7 @@ fun ImageWidget(size:Int, navController: NavController, destination: String,path
 @ExperimentalMaterial3Api
 @Composable
 fun scaff2(navController: NavController,category: Category){
-
+    var searchQuery by remember { mutableStateOf("") }
     val itemnumber = remember { mutableIntStateOf(0) }
     var aror3d by remember { mutableIntStateOf(1) }
     val isSheetVisible = remember { mutableStateOf(false) }
@@ -117,10 +118,21 @@ fun scaff2(navController: NavController,category: Category){
     viewModel.fetchFoodItems()
     val foodItems by viewModel.foodItems.collectAsState()
     val filterditems=foodItems.filter { it.category_id==category.id_ }
+    val doublefiltered=filterditems.filter {
+        it.food_name.contains(searchQuery, ignoreCase = true)
+    }
     Log.d("scaff2","category id is ${category.id_}")
     Log.d("scaff2", "Filtered items count: ${filterditems.size}")
+    Spacer(Modifier.height(120.dp))
     Scaffold(modifier = Modifier,
         topBar = {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Search Category") },
+                modifier = Modifier.statusBarsPadding().fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp)
+            )
 
         },
         floatingActionButton = {
@@ -145,7 +157,7 @@ fun scaff2(navController: NavController,category: Category){
 
             paddingValues ->
         LazyColumn(modifier = Modifier.fillMaxHeight(0.96f), contentPadding = PaddingValues(top=paddingValues.calculateTopPadding())){
-            itemsIndexed(filterditems){ index,foodItem->
+            itemsIndexed(doublefiltered){ index,foodItem->
                 Spacer(modifier= Modifier.height(20.dp))
                 Row(modifier = Modifier.fillMaxWidth().padding(16.dp).clickable {
                     coroutineScope.launch { isSheetVisible.value = true
